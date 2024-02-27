@@ -1,4 +1,4 @@
-# 𝐂𝐍𝐂-𝐍𝐞𝐭_𝐏𝐲𝐓𝐨𝐫𝐜𝐡
+# CNC-Net_PyTorch
 
 This repository contains the official code to reproduce the results from the paper:
 
