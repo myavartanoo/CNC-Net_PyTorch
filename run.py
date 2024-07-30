@@ -14,8 +14,8 @@ from tqdm import tqdm
 
 import utils
 import utils.workspace as ws
-from utils.output_xyz import output_xyz
 from utils.eval_metric import IOU
+from utils.cad_meshing	import create_mesh_mc
 from networks.model import Model
 import utils.dataloader as dataloader
 from utils.Logger import Logger
@@ -113,11 +113,10 @@ def main_function(experiment_directory, continue_from, input_object):
 	torch.cuda.empty_cache()
 	init_seeds()
 	out_dir = 'checkpoints/'+experiment_directory+'/'
-	experiment_directory = out_dir
 	logger = logging.getLogger()
 	handler = logging.FileHandler(out_dir+'logfile.log')
 	logger.addHandler(handler) 
-	logger.debug("running " + experiment_directory)
+	logger.debug("running " + out_dir)
 	specs = ws.load_experiment_specifications('configs')
 
 	logging.info("Experiment description: \n" + specs["Description"])
@@ -141,7 +140,7 @@ def main_function(experiment_directory, continue_from, input_object):
 		
 	def save_checkpoints(epoch):
 
-		ws.save_model_parameters(experiment_directory, str(epoch) + ".pth", operation, optimizer_operation, epoch)
+		ws.save_model_parameters(out_dir, str(epoch) + ".pth", operation, optimizer_operation, epoch)
 	
 			
 	def signal_handler(sig, frame):
@@ -161,7 +160,7 @@ def main_function(experiment_directory, continue_from, input_object):
 
 	operation = Model(ef_dim = 256)
 	operation = operation.cuda()
-	logging.info("training with {} GPU(s)".format(torch.cuda.device_count()))
+
 
 
 	num_epochs = specs["NumEpochs"]
@@ -215,7 +214,7 @@ def main_function(experiment_directory, continue_from, input_object):
 	if continue_from is not None: 
 		
 		logging.info('continuing from "{}"'.format(continue_from))
-		load = torch.load(experiment_directory+'operation_checkpoint_'+str(continue_from)+'.pth')
+		load = torch.load(out_dir+'operation_checkpoint_'+str(continue_from)+'.pth')
 		operation.load_state_dict(load["operation_state_dict"])
 		optimizer_operation.load_state_dict(load["optimizer_state_dict"])
 		model_epoch = load["epoch"]		
@@ -233,7 +232,7 @@ def main_function(experiment_directory, continue_from, input_object):
 
 
 
-
+	# Training
 	BEST_IOU = 0
 	for epoch in range(start_epoch, start_epoch + num_epochs):
 		
@@ -248,8 +247,9 @@ def main_function(experiment_directory, continue_from, input_object):
 			all_points = all_points.cuda()
 		
 			current = -torch.ones_like(inds_inout)
+			current_high = -torch.ones(1,256*256*256).cuda().float()
 	
-			total_loss, outputs = operation(current, all_points, inds_inout, 100, out_dir, torch.mean(best_iou.detach()), dimension, epoch)	
+			total_loss, outputs = operation(current, current_high, all_points, all_points_high, inds_inout, 100, out_dir, torch.mean(best_iou.detach()), dimension, epoch, False)	
 			
 			
 			if not math.isnan(total_loss):
@@ -271,6 +271,7 @@ def main_function(experiment_directory, continue_from, input_object):
 		if (epoch-start_epoch+1) in checkpoints:
 			save_checkpoints(epoch)		
 		
+		# Testing
 		if (epoch+1) % 1 == 0:
 			#operation.eval()
 			IOU_total = []
@@ -284,17 +285,18 @@ def main_function(experiment_directory, continue_from, input_object):
 
 				
 				current = -torch.ones_like(inds_inout)
+				current_high = -torch.ones(1,256*256*256).cuda().float()
 
-				_, outputs = operation(current, all_points, inds_inout, 100, out_dir, best_iou[shape_names], dimension, epoch)	
+				_, outputs, outputs_high = operation(current, current_high, all_points, all_points_high, inds_inout, 100, out_dir, best_iou[shape_names], dimension, epoch, True)	
 				iou = IOU(outputs, inds_inout)
 				IOU_total.append(iou)
 				if best_iou[shape_names]<iou:
 					best_iou[shape_names]=iou
 
+				outputs_high = 0.5*(-torch.sign(outputs_high)+1)
+				samples = all_points_high
 
-				if shape_names % 10 ==0:
-					output_xyz(all_points[0,outputs[0]<0], out_dir+str(shape_names)+'_output.ply')
-					output_xyz(all_points[0,inds_inout[0]<0], out_dir+str(shape_names)+'gt.ply')
+				create_mesh_mc(samples, outputs_high, dimension, os.path.join("output",experiment_directory,input_object[:-4]))
 
 				average_best_iou = sum(IOU_total)/len(IOU_total)
 			logging.debug('Average IOU:\t{:.6f}'.format(average_best_iou))
@@ -325,7 +327,7 @@ def main_function(experiment_directory, continue_from, input_object):
 		logging.debug("epoch = {}/{} , \
 			total_loss={:.6f}".format(epoch, num_epochs+start_epoch, TOTAL_LOSS))
 
-
+	
 
 if __name__ == "__main__":
 
@@ -385,6 +387,17 @@ if __name__ == "__main__":
 		print(f"Directory '{directory_path}' created.")
 	else:
 		print(f"Directory '{directory_path}' already exists.")
-	#os.environ["CUDA_VISIBLE_DEVICES"]="%d"%int(args.gpu)
+
+
+	directory_path = "output/" + str(args.experiment_directory)
+	# Check if the directory already exists
+	if not os.path.exists(directory_path):
+		# If it doesn't exist, create it
+		os.makedirs(directory_path)
+		print(f"Directory '{directory_path}' created.")
+	else:
+		print(f"Directory '{directory_path}' already exists.")
+				
+	os.environ["CUDA_VISIBLE_DEVICES"]="%d"%int(args.gpu)
 
 	main_function(args.experiment_directory, args.continue_from, args.input_object)

@@ -1,7 +1,7 @@
 {
     "Description" : "This experiment learns a shape representation for CAD shapes ",
     "NetworkArch" : "capri",
-    "NumEpochs" : 1,
+    "NumEpochs" : 100,
     "SnapshotFrequency" : 100,
     "AdditionalSnapshots" : [ 100, 500 ],
     "LearningRateSchedule" : [

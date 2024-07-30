@@ -218,7 +218,7 @@ class Model(nn.Module):
 
 
 
-    def forward(self,  initial_current, all_points, inds_inout,   n_step,out_dir, best_iou, dimension, epoch):
+    def forward(self,  initial_current, initial_current_high, all_points, all_points_high, inds_inout,   n_step,out_dir, best_iou, dimension, epoch, test):
             
         w = 1000
 
@@ -226,6 +226,7 @@ class Model(nn.Module):
 
         Loss_occ = []
         current = initial_current
+        current_high = initial_current_high
         loss_occ = 0
         loss_ends = 0
         loss_occ_prev = -1
@@ -294,6 +295,8 @@ class Model(nn.Module):
             mill_rot_param.append(angles)
             
             current,cyl = CSG(current, path_xyz, tool_radius, rot.transform_points(all_points))
+            if test:
+            	current_high,cyl_high = CSG(current_high, path_xyz, tool_radius, rot.transform_points(all_points_high))
 
 
             loss_occ = mse(torch.sign(current), inds_inout)
@@ -391,6 +394,8 @@ class Model(nn.Module):
 
 
             current,cyl = CSG(current, path_xyz, tool_radius, rot.transform_points(all_points))
+            if test:            
+            	current_high,cyl_high = CSG(current_high, path_xyz, tool_radius, rot.transform_points(all_points_high))
 
 
             loss_occ = mse(torch.sign(current), inds_inout)
@@ -435,5 +440,7 @@ class Model(nn.Module):
          
 
         loss_total = Loss_occ_drill + loss_ends/(it_mill+it_drill+2) + loss_roi/(it_mill+it_drill+2) + loss_nroi/(it_drill+1)
-
-        return loss_total, current
+        if test:        
+        	return loss_total, current, current_high
+        else:        
+        	return loss_total, current        	
