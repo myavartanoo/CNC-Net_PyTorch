@@ -15,17 +15,6 @@ git clone https://github.com/myavartanoo/CNC-Net_PyTorch.git
 cd CNC-Net_PyTorch
 ```
 
-### Citation
-If you find our code or paper useful, please consider citing:
-```
-@inproceedings{CNCNet,
-  title={CNC-Net: Self-Supervised Learning for CNC Machining Operations},
-  author={Mohsen Yavatanoo and Sangmin Hong and Reyhaneh Neshatavar and Kyoung Mu Lee},
-  booktitle={The IEEE / CVF Computer Vision and Pattern Recognition Conference (CVPR)},
-  year={2024}
-}
-```
-
 ### Dependencies
 Install the dependencies:
 * Python 3.8.18
@@ -39,6 +28,19 @@ Install the dependencies:
 To train the model for a given object individually run the below command.
 ```python train.py --input_object {objec_name} --gpu {device_index} --experiment {experiment_name}
 ```
+
 For example:
 ```python train.py --input_object '0.off' --gpu 0 --experiment exp_0
+```
+
+
+### Citation
+If you find our code or paper useful, please consider citing:
+```
+@inproceedings{CNCNet,
+  title={CNC-Net: Self-Supervised Learning for CNC Machining Operations},
+  author={Mohsen Yavatanoo and Sangmin Hong and Reyhaneh Neshatavar and Kyoung Mu Lee},
+  booktitle={The IEEE / CVF Computer Vision and Pattern Recognition Conference (CVPR)},
+  year={2024}
+}
 ```
