@@ -26,11 +26,12 @@ Install the dependencies:
 
 ## Quick Start
 To train the model for a given object individually run the below command.
-```python train.py --input_object {objec_name} --gpu {device_index} --experiment {experiment_name}
 ```
-
+python train.py --input_object {objec_name} --gpu {device_index} --experiment {experiment_name}
+```
 For example:
-```python train.py --input_object '0.off' --gpu 0 --experiment exp_0
+```
+python train.py --input_object '0.off' --gpu 0 --experiment exp_0
 ```
 
 
