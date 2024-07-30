@@ -6,7 +6,10 @@ This repository contains the official code to reproduce the results from the pap
 
 \[[CVF Open Access](https://openaccess.thecvf.com/content/CVPR2024/html/Yavartanoo_CNC-Net_Self-Supervised_Learning_for_CNC_Machining_Operations_CVPR_2024_paper.html)\]\[[arXiv](https://arxiv.org/abs/2312.09925)\] \[[YouTube](https://www.youtube.com/watch?v=0wg5aV-q7XU&t=1s)\]
 
-![architecture](https://github.com/myavartanoo/CNC-Net_PyTorch/blob/master/source/Framework.png)
+
+<p align="center">
+<img src="source/Framework.png" width="100%"/>  
+</p>
 
 ## Installation
 Clone this repository into any place you want.
