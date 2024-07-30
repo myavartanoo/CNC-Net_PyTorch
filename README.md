@@ -28,13 +28,13 @@ Install the dependencies:
 * pysdf
 
 ## Quick Start
-To train the model for a given object individually run the below command.
+To run the model for a given object follow the below command.
 ```
-python train.py --input_object {objec_name} --gpu {device_index} --experiment {experiment_name}
+python run.py --input_object {objec_name} --gpu {device_index} --experiment {experiment_name}
 ```
 For example:
 ```
-python train.py --input_object '0.off' --gpu 0 --experiment exp_0
+python run.py --input_object '0.off' --gpu 0 --experiment exp_0
 ```
 
 
