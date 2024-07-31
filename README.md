@@ -41,7 +41,7 @@ python run.py --input_object '0.off' --gpu 0 --experiment exp_0
 ### Citation
 If you find our code or paper useful, please consider citing:
 ```
-@inproceedings{CNCNet,
+@inproceedings{CNC-Net,
   title={CNC-Net: Self-Supervised Learning for CNC Machining Operations},
   author={Mohsen Yavatanoo and Sangmin Hong and Reyhaneh Neshatavar and Kyoung Mu Lee},
   booktitle={The IEEE / CVF Computer Vision and Pattern Recognition Conference (CVPR)},
